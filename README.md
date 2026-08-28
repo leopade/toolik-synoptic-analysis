@@ -1,6 +1,6 @@
 # Toolik Synoptic Radio Analysis
 
-Python tools for processing and analyzing Toolik synoptic HF radio data for the LaBelle Space Physics research project.
+Python tools for processing and analyzing Toolik synoptic HF radio data for the Space Physics research project.
 
 ## Project Overview
 
@@ -215,12 +215,6 @@ For each date, the program:
 python3 run_synoptic_final.py START_DATE END_DATE
 ```
 
-Example:
-
-```bash
-python3 run_synoptic_final.py 20200927 20201026
-```
-
 Dates must use the format:
 
 ```text
@@ -288,8 +282,6 @@ peak_4996_ch3_20200927.dat
 peak_4996_ch4_20200927.dat
 ```
 
-The date is included in the filename so that files from multiple days can later be collected in the same folder without losing track of their dates.
-
 ### Peak file columns
 
 Each peak file contains three columns:
@@ -297,12 +289,6 @@ Each peak file contains three columns:
 ```text
 time   maximum_power   frequency_of_maximum_power
 ```
-
-For example, for the 3.330 MHz file, each row represents one time step and contains:
-
-1. time
-2. highest power found in the 3.330 MHz search region
-3. frequency at which that maximum power occurred
 
 ### DONE file
 
@@ -375,24 +361,12 @@ It saves the four Fortran channel outputs from the 06 UT section so they can lat
 python3 run_synoptic_06_only.py START_DATE END_DATE
 ```
 
-Example:
-
-```bash
-python3 run_synoptic_06_only.py 20200927 20201026
-```
-
 ### Work directory
 
 The program uses its own work directory:
 
 ```text
 synoptic_work_06/
-```
-
-This is intentionally separate from the main program's:
-
-```text
-synoptic_work/
 ```
 
 ### Results directory
@@ -448,12 +422,6 @@ YYYYMMDD-110001-TLK-SYN.data
 python3 run_synoptic_11_only.py START_DATE END_DATE
 ```
 
-Example:
-
-```bash
-python3 run_synoptic_11_only.py 20200927 20201026
-```
-
 ### Work directory
 
 ```text
@@ -483,262 +451,6 @@ The program also skips dates whose four output files already exist and stops if 
 
 ---
 
-# Parallel Processing
-
-A single complete date requires three expensive Fortran calculations:
-
-```text
-01 UT section
-06 UT section
-11 UT section
-```
-
-Because the calculations take a long time, the processing was split so that different computers can work on different time sections.
-
-For example:
-
-```text
-Computer 1
-    |
-    └── 01 processing / main processing
-
-Computer 2
-    |
-    └── 06 processing
-```
-
-The first computer can later be switched to the 11-only program.
-
-The separate programs use different work directories:
-
-```text
-synoptic_work/
-synoptic_work_06/
-synoptic_work_11/
-```
-
-and different results directories:
-
-```text
-synoptic_results/
-synoptic_results_06/
-synoptic_results_11/
-```
-
-This prevents the Python programs from deleting or overwriting each other's temporary files.
-
-The purpose of the separate processing is only to create the individual 5-hour pieces more quickly.
-
-A scientifically complete day still requires:
-
-```text
-01 + 06 + 11
-```
-
----
-
-# Combining Separately Processed Sections
-
-When separate processing is used, a complete date will eventually have four channel files for each start time.
-
-For channel 2, for example:
-
-```text
-01 section
-20200927-010001-ch2.dat
-
-06 section
-20200927-060001-ch2.dat
-
-11 section
-20200927-110001-ch2.dat
-```
-
-The files must be combined in exactly this order:
-
-```text
-01 -> 06 -> 11
-```
-
-The same operation is performed independently for channels 1, 2, 3, and 4.
-
-The resulting complete files should represent approximately 01–16 UT.
-
-A separate combining program is currently being developed and tested.
-
-It will be added to this repository after the workflow has been verified with real output data.
-
----
-
-# Directory Layout
-
-A typical working directory may look like:
-
-```text
-data_directory/
-│
-├── a.out
-│
-├── run_synoptic_final.py
-├── run_synoptic_06_only.py
-├── run_synoptic_11_only.py
-│
-├── 20200927-010001-TLK-SYN.data.gz
-├── 20200927-060001-TLK-SYN.data.gz
-├── 20200927-110001-TLK-SYN.data.gz
-│
-├── synoptic_work/
-├── synoptic_work_06/
-├── synoptic_work_11/
-│
-├── synoptic_results/
-├── synoptic_results_06/
-└── synoptic_results_11/
-```
-
-The large original SYN files and processed data files are not intended to be stored in this GitHub repository.
-
-GitHub is being used primarily to preserve:
-
-- source code
-- documentation
-- processing instructions
-- small sample outputs
-- example plots
-
----
-
-# Important Error Messages
-
-## `Cannot find: a.out`
-
-The Python program cannot find the compiled Fortran program.
-
-Make sure:
-
-```text
-a.out
-```
-
-is in the directory from which the Python program is being run.
-
----
-
-## `Missing: YYYYMMDD-...-TLK-SYN.data`
-
-The expected raw input file cannot be found.
-
-The programs check for both:
-
-```text
-.data
-```
-
-and:
-
-```text
-.data.gz
-```
-
-versions.
-
----
-
-## `Fortran failed.`
-
-The `a.out` process returned a nonzero exit status.
-
-This indicates that the Fortran program did not terminate normally.
-
----
-
-## `Missing: gnudata-XX`
-
-The Fortran process ended, but one of the four expected channel outputs could not be found.
-
-The expected outputs are:
-
-```text
-gnudata-11
-gnudata-22
-gnudata-33
-gnudata-44
-```
-
----
-
-# Known Behavior of the Full-Day Program
-
-The current full-day program is intended to process each date as:
-
-```text
-01 -> 06 -> 11
-```
-
-before moving to the next date.
-
-However, the current version has an important behavior to keep in mind.
-
-After a Fortran run, it checks:
-
-1. whether the Fortran program returned successfully
-2. whether each expected `gnudata` file exists
-
-If one of those checks fails, the function processing the current date returns.
-
-The outer date loop can then continue to the next date.
-
-Because each new date starts at 01 UT, repeated failures after the first section can create an apparent sequence such as:
-
-```text
-Date 1 -> 01
-Date 2 -> 01
-Date 3 -> 01
-```
-
-This does not mean that the program was intentionally written to process all 01 files first.
-
-It means the previous date may have been abandoned after its 01 section.
-
-When diagnosing this behavior, check the terminal output immediately after a run for:
-
-```text
-Fortran failed.
-```
-
-or:
-
-```text
-Missing: gnudata-XX
-```
-
-The 06-only and 11-only programs were written to stop rather than continue through dates after these types of processing failures.
-
----
-
-# Important Note About Full-Day Output Filenames
-
-The full-day program creates its combined channel files at the beginning of processing a date.
-
-For example:
-
-```text
-20200927-0100-1600-ch2.dat
-```
-
-The filename describes the intended complete daily product.
-
-However, if processing stops after only the 01 section, that file may exist even though it does not yet contain the complete 01–16 UT day.
-
-Therefore:
-
-> The existence of a `YYYYMMDD-0100-1600-chX.dat` file by itself does not prove that the full day finished.
-
-The `DONE` file is the stronger indication that the original full-day workflow completed successfully.
-
-When working with files from an interrupted run, file size or line count should also be checked before treating them as complete daily files.
-
----
 
 # Expected Output Sizes
 
@@ -758,83 +470,3 @@ daily peak output:
 These checks are useful when verifying whether an output represents one 5-hour section or a complete 15-hour day.
 
 ---
-
-# Current Scientific Analysis
-
-The initial detailed analysis focused on five consecutive dates:
-
-```text
-September 21–25, 2020
-```
-
-The analysis examined the behavior of the three HF frequencies across the day and compared changes between frequencies.
-
-Additional processing is being performed beginning with:
-
-```text
-September 27, 2020
-```
-
-with the goal of creating a longer multi-day dataset.
-
-September 26 can be processed separately to connect the two periods continuously.
-
-The longer-term goal is to obtain approximately 30 consecutive days that can be compared systematically.
-
----
-
-# Planned Multi-Day Analysis
-
-Once complete daily peak files are available, the next analysis stage is to combine many dates.
-
-Planned visualizations include:
-
-- multi-day heat maps
-- hidden-line plots
-- comparison of 2.500, 3.330, and 4.996 MHz
-- comparison between receiver channels
-- examination of recurring signal features
-- comparison with auroral activity
-
-Auroral activity will eventually be plotted alongside the radio observations to investigate whether radio propagation or signal-power changes correspond to changes in geomagnetic activity.
-
----
-
-# Current Development Status
-
-## Working / currently in use
-
-- `run_synoptic_final.py`
-- `run_synoptic_06_only.py`
-- `run_synoptic_11_only.py`
-- Fortran processing with the precompiled `a.out`
-- daily peak extraction in the full-day program
-- dated final peak filenames
-
-## Currently being developed or tested
-
-- combining independently processed 01, 06, and 11 sections
-- automatic peak extraction after separate-section combination
-- combining peak files across many days
-- multi-day heat maps
-- hidden-line plots
-- auroral-activity comparison
-
-These programs should only be added to the repository once they have been tested with real processing output.
-
----
-
-# Repository Purpose
-
-This repository is intended to document the processing workflow so that the project can be resumed later by the current researchers or continued by someone new to the project.
-
-The repository should contain:
-
-```text
-Python source programs
-README and documentation
-small sample outputs
-example plots
-```
-
-Large raw SYN files and large intermediate processing files should remain outside the repository.
