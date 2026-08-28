@@ -1,4 +1,4 @@
-# toolik-synoptic-analysis
+# Toolik-synoptic-radio-analysis
 Python programs for processing Toolik synoptic radio data
 
 ## Project Overview
@@ -18,10 +18,6 @@ Each date is divided into three 5-hour SYN files:
 - `YYYYMMDD-110001-TLK-SYN.data`
 
 Together, these cover approximately 01–16 UT.
-
-The normal chronological order is:
-
-`01 -> 06 -> 11`
 
 ---
 
@@ -368,63 +364,5 @@ Daily peak files
       v
 Multi-day analysis and plotting
 ```
-
----
-
-# Known Issue With the Main Full-Day Program
-
-The current full-day program is intended to process:
-
-```text
-01 -> 06 -> 11
-```
-
-before moving to the next date.
-
-However, if the Fortran program fails or one of the expected `gnudata` files is missing, the current version returns from that date and the outer date loop can continue to the next date.
-
-This can make the processing appear to run:
-
-```text
-date 1 - 01
-date 2 - 01
-date 3 - 01
-```
-
-instead of completing all three sections of each date.
-
-When running the program, check the terminal output for messages such as:
-
-```text
-Fortran failed.
-```
-
-or:
-
-```text
-Missing: gnudata-XX
-```
-
-This behavior should be considered when restarting or troubleshooting long processing runs.
-
----
-
-# Current Research Period
-
-Initial detailed analysis was performed for:
-
-```text
-September 21–25, 2020
-```
-
-Additional processing is being performed beginning around:
-
-```text
-September 27, 2020
-```
-
-with the goal of building approximately 30 continuous days of data for multi-day analysis.
-
-September 26 can be processed separately to connect the two periods.
 
 ---
