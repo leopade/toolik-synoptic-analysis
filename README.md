@@ -71,13 +71,13 @@ The three files are processed chronologically in the order:
 
 Together they cover 01–16 UT.
 
-The input files are uncompressed:
+The input files are compressed:
 
 ```text
 .data.gz
 ```
 
-The Python programs looks for this file, however can also process already compressed files.
+The Python programs looks for compressed files, however it can also process already uncompressed files.
 
 ---
 
@@ -325,13 +325,7 @@ new corresponding frequency
 
 At the end of the region, one peak point is written to the appropriate output file.
 
-The result is therefore not simply the power at exactly 2.500, 3.330, or 4.996 MHz.
-
-Instead, it is:
-
-> the highest-power frequency bin within the search region around that nominal frequency.
-
-This allows small frequency shifts in the observed signal to be retained.
+The result is therefore not simply the power at exactly 2.500, 3.330, or 4.996 MHz. Instead, it is the highest-power frequency bin within the search region around that nominal frequency. This allows small frequency shifts in the observed signal to be retained.
 
 ---
 
