@@ -69,21 +69,15 @@ The three files are processed chronologically in the order:
 01 -> 06 -> 11
 ```
 
-Together they cover approximately 01–16 UT.
+Together they cover 01–16 UT.
 
-The input files may either be uncompressed:
-
-```text
-.data
-```
-
-or compressed:
+The input files are uncompressed:
 
 ```text
 .data.gz
 ```
 
-The Python programs automatically look for both versions.
+The Python programs looks for this file, however can also process already compressed files.
 
 ---
 
