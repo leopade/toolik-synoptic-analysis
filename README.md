@@ -458,3 +458,206 @@ daily peak output:
 These checks are useful when verifying whether an output represents one 5-hour section or a complete 15-hour day.
 
 ---
+
+# `combine_peak_days_final.py`
+
+This program combines many daily peak files into larger multi-day files for plotting and comparison.
+
+It is intended to be used after the daily peak files have already been created.
+
+## Input folder
+
+The program expects a folder called:
+
+```text
+peak_files/
+```
+
+in the same directory as the Python program.
+
+The daily peak files inside this folder must contain the date in the filename.
+
+Example filenames:
+
+```text
+peak_2500_ch1_20200927.dat
+peak_3330_ch2_20200927.dat
+peak_4996_ch4_20200927.dat
+```
+
+The last 8 digits before `.dat` are interpreted as the date in:
+
+```text
+YYYYMMDD
+```
+
+format.
+
+The program finds all available dates automatically and sorts them chronologically.
+
+## Frequencies and channels
+
+The program processes the three frequencies:
+
+```text
+2500
+3330
+4996
+```
+
+and all four receiver channels:
+
+```text
+1
+2
+3
+4
+```
+
+This produces 12 combined output files.
+
+## Output folder
+
+The program creates:
+
+```text
+big_peak_files/
+```
+
+if it does not already exist.
+
+The output files are named:
+
+```text
+all_peak_2500_ch1.dat
+all_peak_2500_ch2.dat
+all_peak_2500_ch3.dat
+all_peak_2500_ch4.dat
+
+all_peak_3330_ch1.dat
+all_peak_3330_ch2.dat
+all_peak_3330_ch3.dat
+all_peak_3330_ch4.dat
+
+all_peak_4996_ch1.dat
+all_peak_4996_ch2.dat
+all_peak_4996_ch3.dat
+all_peak_4996_ch4.dat
+```
+
+Each file contains one frequency and one receiver channel across all available dates.
+
+For example:
+
+```text
+all_peak_3330_ch2.dat
+```
+
+contains the 3.330 MHz peak-power data from channel 2 for every date found in `peak_files/`.
+
+## Daily time grid
+
+For every date, the program creates exactly:
+
+```text
+900 time positions
+```
+
+corresponding to one-minute steps from approximately:
+
+```text
+01:01 UT -> 16:00 UT
+```
+
+Each day is first filled with:
+
+```text
+nan
+```
+
+values.
+
+The daily peak file is then read and the measured power values are placed into the appropriate one-minute positions.
+
+If a minute does not contain a valid measurement, the value remains:
+
+```text
+nan
+```
+
+This keeps all dates aligned to the same time grid.
+
+## Daily peak-file columns
+
+The program reads:
+
+```text
+column 1 = time
+column 2 = signal power
+```
+
+from each daily peak file.
+
+The third column of the daily peak files, which contains the frequency of the maximum-power point, is not used by this program.
+
+## Output format
+
+Each output file begins with:
+
+```text
+# date day_of_year time_UT signal_power
+```
+
+Each row then contains:
+
+```text
+date   day_of_year   time_UT   signal_power
+```
+
+Example:
+
+```text
+27-09-2020 271.0 1.016667 -102.4
+27-09-2020 271.0 1.033333 -101.8
+27-09-2020 271.0 1.050000 -100.9
+```
+
+A blank line is written between dates.
+
+This makes the files convenient for multi-day plotting in Gnuplot.
+
+## Run
+
+```bash
+python3 combine_peak_days_final.py
+```
+
+The program does not require start and end dates.
+
+It automatically uses all valid dated peak files found in:
+
+```text
+peak_files/
+```
+
+## Role in the workflow
+
+The program is used at the multi-day analysis stage:
+
+```text
+Daily peak files
+      |
+      v
+peak_files/
+      |
+      v
+combine_peak_days_final.py
+      |
+      v
+big_peak_files/
+      |
+      v
+Multi-day heat maps or hidden-line plots
+```
+
+The resulting `all_peak_*.dat` files can be used to compare signal-power behavior across many consecutive days.
