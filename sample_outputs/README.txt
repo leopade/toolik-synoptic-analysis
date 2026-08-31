@@ -1,1 +1,1 @@
-Example processed output files.
+Example processed output files ready to be plotted.
