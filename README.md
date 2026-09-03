@@ -168,7 +168,7 @@ The current Python programs remove these after processing because they are not n
 
 At the moment, the repository contains three production-processing programs.
 
-## `run_synoptic_final.py`
+## `run_synoptic_final_with_dates.py`
 
 This is the main full-day processing program.
 
@@ -206,7 +206,7 @@ For each date, the program:
 ### Run the program
 
 ```bash
-python3 run_synoptic_final.py START_DATE END_DATE
+python3 run_synoptic_final_with_dates.py START_DATE END_DATE
 ```
 
 Dates must use the format:
@@ -326,136 +326,6 @@ new corresponding frequency
 At the end of the region, one peak point is written to the appropriate output file.
 
 The result is therefore not simply the power at exactly 2.500, 3.330, or 4.996 MHz. Instead, it is the highest-power frequency bin within the search region around that nominal frequency. This allows small frequency shifts in the observed signal to be retained.
-
----
-
-# `run_synoptic_06_only.py`
-
-This program processes only the 5-hour files beginning at 06 UT:
-
-```text
-YYYYMMDD-060001-TLK-SYN.data
-```
-
-It was created to allow the very long Fortran processing to be distributed across multiple computers.
-
-Unlike the full-day program, it does not combine a complete day and does not perform the final daily peak extraction.
-
-It saves the four Fortran channel outputs from the 06 UT section so they can later be combined with the corresponding 01 and 11 UT sections.
-
-### Run
-
-```bash
-python3 run_synoptic_06_only.py START_DATE END_DATE
-```
-
-### Work directory
-
-The program uses its own work directory:
-
-```text
-synoptic_work_06/
-```
-
-### Results directory
-
-Results are stored in:
-
-```text
-synoptic_results_06/
-```
-
-Example:
-
-```text
-synoptic_results_06/
-└── 20200927/
-    ├── 20200927-060001-ch1.dat
-    ├── 20200927-060001-ch2.dat
-    ├── 20200927-060001-ch3.dat
-    └── 20200927-060001-ch4.dat
-```
-
-These are intermediate 5-hour files, not final peak files.
-
-### Restart behavior
-
-Before processing a date, the program checks whether all four expected channel output files already exist.
-
-If all four exist, it prints:
-
-```text
-Already finished. Skipping.
-```
-
-and moves to the next date.
-
-If the Fortran program fails or an expected `gnudata` file is missing, this program stops so that the problem can be checked.
-
----
-
-# `run_synoptic_11_only.py`
-
-This program is the equivalent of the 06-only program for the final 5-hour section of each date.
-
-It processes:
-
-```text
-YYYYMMDD-110001-TLK-SYN.data
-```
-
-### Run
-
-```bash
-python3 run_synoptic_11_only.py START_DATE END_DATE
-```
-
-### Work directory
-
-```text
-synoptic_work_11/
-```
-
-### Results directory
-
-```text
-synoptic_results_11/
-```
-
-Example:
-
-```text
-synoptic_results_11/
-└── 20200927/
-    ├── 20200927-110001-ch1.dat
-    ├── 20200927-110001-ch2.dat
-    ├── 20200927-110001-ch3.dat
-    └── 20200927-110001-ch4.dat
-```
-
-As with the 06-only program, these are intermediate 5-hour channel outputs.
-
-The program also skips dates whose four output files already exist and stops if the Fortran run fails or an expected channel output is missing.
-
----
-
-
-# Expected Output Sizes
-
-For the current processing setup, useful approximate checks are:
-
-```text
-one 5-hour channel output:
-~94,500 rows
-
-three sections combined:
-~283,500 rows
-
-daily peak output:
-~900 time points per frequency/channel
-```
-
-These checks are useful when verifying whether an output represents one 5-hour section or a complete 15-hour day.
 
 ---
 
