@@ -12,7 +12,7 @@ This project processes long-duration Toolik radio observations in order to study
 
 The data contain four receiver channels.
 
-The main goal is to turn the original large SYN data files into much smaller time series containing the strongest signal near each of the three frequencies. These daily peak files can then be combined across many days and compared with quantities such as auroral activity.
+The main goal is to turn the original large SYN data files into much smaller time series containing the strongest signal near each of the three frequencies. These daily peak files can then be combined across many days and compared with geomagnetic activity using the Kp index.
 
 The general workflow is:
 
@@ -38,7 +38,20 @@ Peak extraction
 Daily peak files
      |
      v
-Multi-day plots and comparison with auroral activity
+Combine daily peak files across many dates
+     |
+     v
+Multi-day peak files
+     |
+     +--------------------+
+     |                    |
+     v                    v
+Radio peak data       Daily Kp sums
+     |                    |
+     +---------+----------+
+               |
+               v
+        Plotting in Gnuplot
 ```
 
 ---
@@ -531,3 +544,237 @@ Multi-day heat maps or hidden-line plots
 ```
 
 The resulting `all_peak_*.dat` files can be used to compare signal-power behavior across many consecutive days.
+
+---
+
+# `sum_daily_kp_01_16.py`
+
+This program prepares daily Kp-index values for comparison with the Toolik radio observations.
+
+The radio data used in this project cover approximately:
+
+```text
+01:00–16:00 UT
+```
+
+Kp is reported in 3-hour intervals. Because the radio observing period does not line up exactly with the Kp intervals, the program uses the six Kp bins that overlap the 01–16 UT radio period:
+
+```text
+00–03 UT
+03–06 UT
+06–09 UT
+09–12 UT
+12–15 UT
+15–18 UT
+```
+
+The program sums these six Kp values for each date.
+
+This gives one daily geomagnetic-activity value that can be compared with the 01–16 UT radio data.
+
+## Input file
+
+The program expects:
+
+```text
+Kp_ap_20200829_20201023.dat
+```
+
+The input data must contain the date, the starting hour of the Kp interval, and the Kp value in the columns expected by the script.
+
+## Output file
+
+The program creates:
+
+```text
+daily_kp_sum_01_16.dat
+```
+
+The output begins with:
+
+```text
+# Date DOY Kp_sum_01_16
+```
+
+Each following row contains:
+
+```text
+date   day_of_year   summed_Kp
+```
+
+For example, the format is:
+
+```text
+2020-09-27 271 8.667
+```
+
+The exact value above is only an example of the file format.
+
+A date is written only when all six selected 3-hour Kp values are present. If a date does not contain six selected Kp values, the program prints a warning.
+
+## Run
+
+```bash
+python3 sum_daily_kp_01_16.py
+```
+
+## Role in the workflow
+
+```text
+Kp input data
+      |
+      v
+sum_daily_kp_01_16.py
+      |
+      v
+daily_kp_sum_01_16.dat
+      |
+      v
+Comparison with the 01–16 UT radio peak data
+```
+
+---
+
+# Plotting the Final Data
+
+The repository does not require a dedicated plotting script.
+
+After running:
+
+```text
+combine_peak_days_final.py
+```
+
+the radio data are available in the 12 files:
+
+```text
+big_peak_files/all_peak_2500_ch1.dat
+...
+big_peak_files/all_peak_4996_ch4.dat
+```
+
+After running:
+
+```text
+sum_daily_kp_01_16.py
+```
+
+the daily geomagnetic activity is available in:
+
+```text
+daily_kp_sum_01_16.dat
+```
+
+These files can then be plotted directly in **Gnuplot**.
+
+Possible plots include:
+
+- multi-day heat maps of signal power versus UT and day of year
+- hidden-line or stacked daily plots
+- comparisons among the four receiver channels
+- comparisons among 2.500, 3.330, and 4.996 MHz
+- radio peak-power plots with the daily 01–16 UT Kp sum shown underneath
+
+The exact plotting style can be changed depending on which feature of the data is being investigated.
+
+---
+
+# Repository Folders
+
+## `sample_outputs/`
+
+This folder contains example peak files produced by the processing pipeline.
+
+The sample files show the format of the real daily outputs without requiring the much larger raw SYN files to be stored in the repository.
+
+Example:
+
+```text
+peak_2500_ch2_20200923.dat
+peak_3330_ch2_20200923.dat
+peak_4996_ch2_20200923.dat
+```
+
+Each sample peak file contains:
+
+```text
+time   maximum_power   frequency_of_maximum_power
+```
+
+These are example outputs from the actual Toolik processing workflow.
+
+## `plots/`
+
+This folder is used for selected figures produced from the processed data.
+
+The full set of generated plots does not need to be stored in the repository. Representative plots can be included here to show the final analysis products.
+
+---
+
+# Current Repository Structure
+
+```text
+toolik-synoptic-analysis/
+│
+├── README.md
+├── run_synoptic_final_with_dates.py
+├── combine_peak_days_final.py
+├── sum_daily_kp_01_16.py
+│
+├── sample_outputs/
+│   └── example daily peak files
+│
+└── plots/
+    └── selected analysis figures
+```
+
+The large raw SYN files, temporary Fortran output, complete daily result folders, and full multi-day generated datasets are not stored in the GitHub repository.
+
+---
+
+# Complete Analysis Workflow
+
+The current analysis procedure is:
+
+```text
+1. Raw Toolik SYN files
+        |
+        v
+2. run_synoptic_final_with_dates.py
+        |
+        +--> process 01, 06, and 11 UT SYN files
+        +--> combine them into 01–16 UT channel files
+        +--> extract peaks around 2.500, 3.330, and 4.996 MHz
+        |
+        v
+3. Dated daily peak files
+        |
+        v
+4. Place the required daily peak files in peak_files/
+        |
+        v
+5. combine_peak_days_final.py
+        |
+        v
+6. 12 multi-day all_peak_*.dat files
+
+Separately:
+
+7. Kp input data
+        |
+        v
+8. sum_daily_kp_01_16.py
+        |
+        v
+9. daily_kp_sum_01_16.dat
+
+Finally:
+
+10. Plot the radio data and Kp data in Gnuplot
+        |
+        v
+11. Compare frequency, channel, time-of-day, and geomagnetic behavior
+```
+
+This keeps the repository focused on the programs required to reproduce the processing and analysis while leaving plotting choices flexible.
+
