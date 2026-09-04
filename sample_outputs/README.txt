@@ -1,1 +1,2 @@
-Example processed output files by run_synoptic_final_with_dates.py
+Example processed output files by run_synoptic_final_with_dates.py: peak_FREQUENCY_CHANNEL_YYYYMMDD.dat
+Example processed output files by combine_peak_days_final.py:
