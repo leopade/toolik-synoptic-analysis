@@ -51,7 +51,7 @@ Radio peak data       Daily Kp sums
      +---------+----------+
                |
                v
-        Plotting in Gnuplot
+          Make plots
 ```
 
 ---
@@ -91,48 +91,6 @@ The input files are compressed:
 ```
 
 The Python programs looks for compressed files, however it can also process already uncompressed files.
-
----
-
-# Data Structure
-
-A full 5-hour SYN file contains 4-channel radio data.
-
-In the current processing setup:
-
-- one SYN file covers 5 hours
-- the raw data contain 4 interleaved channels
-- the data are organized in 4-second blocks
-- a complete 5-hour file contains 4,500 such blocks
-- the Fortran processing averages groups of blocks before producing the frequency/power output
-
-The Python peak-extraction method expects the processed channel files to be organized in repeating groups of 315 rows:
-
-```text
-105 rows near 2.500 MHz
-105 rows near 3.330 MHz
-105 rows near 4.996 MHz
-```
-
-Therefore:
-
-```text
-315 rows = one output time step
-```
-
-For each group, the Python program searches each 105-row frequency region and records the point with the highest power.
-
-A normally completed 5-hour processed channel file is expected to contain approximately:
-
-```text
-94,500 rows
-```
-
-Three 5-hour sections combined into one full 15-hour day therefore contain approximately:
-
-```text
-283,500 rows per channel
-```
 
 ---
 
@@ -523,30 +481,6 @@ It automatically uses all valid dated peak files found in:
 peak_files/
 ```
 
-## Role in the workflow
-
-The program is used at the multi-day analysis stage:
-
-```text
-Daily peak files
-      |
-      v
-peak_files/
-      |
-      v
-combine_peak_days_final.py
-      |
-      v
-big_peak_files/
-      |
-      v
-Multi-day heat maps or hidden-line plots
-```
-
-The resulting `all_peak_*.dat` files can be used to compare signal-power behavior across many consecutive days.
-
----
-
 # `sum_daily_kp_01_16.py`
 
 This program prepares daily Kp-index values for comparison with the Toolik radio observations.
@@ -579,6 +513,10 @@ The program expects:
 ```text
 Kp_ap_20200829_20201023.dat
 ```
+The Kp input data used for this project come from the **GFZ Helmholtz Centre for Geosciences Kp index service**:
+
+- Kp website: https://kp.gfz.de/en/
+- Data download page: https://kp.gfz.de/en/data
 
 The input data must contain the date, the starting hour of the Kp interval, and the Kp value in the columns expected by the script.
 
@@ -618,26 +556,7 @@ A date is written only when all six selected 3-hour Kp values are present. If a 
 python3 sum_daily_kp_01_16.py
 ```
 
-## Role in the workflow
-
-```text
-Kp input data
-      |
-      v
-sum_daily_kp_01_16.py
-      |
-      v
-daily_kp_sum_01_16.dat
-      |
-      v
-Comparison with the 01–16 UT radio peak data
-```
-
----
-
 # Plotting the Final Data
-
-The repository does not require a dedicated plotting script.
 
 After running:
 
@@ -665,7 +584,7 @@ the daily geomagnetic activity is available in:
 daily_kp_sum_01_16.dat
 ```
 
-These files can then be plotted directly in **Gnuplot**.
+These files can then be plotted with a plotting program.
 
 Possible plots include:
 
@@ -676,59 +595,6 @@ Possible plots include:
 - radio peak-power plots with the daily 01–16 UT Kp sum shown underneath
 
 The exact plotting style can be changed depending on which feature of the data is being investigated.
-
----
-
-# Repository Folders
-
-## `sample_outputs/`
-
-This folder contains example peak files produced by the processing pipeline.
-
-The sample files show the format of the real daily outputs without requiring the much larger raw SYN files to be stored in the repository.
-
-Example:
-
-```text
-peak_2500_ch2_20200923.dat
-peak_3330_ch2_20200923.dat
-peak_4996_ch2_20200923.dat
-```
-
-Each sample peak file contains:
-
-```text
-time   maximum_power   frequency_of_maximum_power
-```
-
-These are example outputs from the actual Toolik processing workflow.
-
-## `plots/`
-
-This folder is used for selected figures produced from the processed data.
-
-The full set of generated plots does not need to be stored in the repository. Representative plots can be included here to show the final analysis products.
-
----
-
-# Current Repository Structure
-
-```text
-toolik-synoptic-analysis/
-│
-├── README.md
-├── run_synoptic_final_with_dates.py
-├── combine_peak_days_final.py
-├── sum_daily_kp_01_16.py
-│
-├── sample_outputs/
-│   └── example daily peak files
-│
-└── plots/
-    └── selected analysis figures
-```
-
-The large raw SYN files, temporary Fortran output, complete daily result folders, and full multi-day generated datasets are not stored in the GitHub repository.
 
 ---
 
@@ -770,11 +636,8 @@ Separately:
 
 Finally:
 
-10. Plot the radio data and Kp data in Gnuplot
+10. Plot the radio data and Kp data
         |
         v
 11. Compare frequency, channel, time-of-day, and geomagnetic behavior
 ```
-
-This keeps the repository focused on the programs required to reproduce the processing and analysis while leaving plotting choices flexible.
-
