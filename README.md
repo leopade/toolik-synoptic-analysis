@@ -1,6 +1,6 @@
 # Toolik Synoptic Radio Analysis
 
-Python tools for processing and analyzing Toolik synoptic HF radio data for a Space Physics research project.
+Tools for processing and analyzing Toolik synoptic HF radio data for a Space Physics research project.
 
 ## Project Overview
 
