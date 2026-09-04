@@ -265,7 +265,7 @@ def process_day(date, archive_dir, work_dir, results_dir, executable):
 
 def main():
     if len(sys.argv) != 3:
-        print("Usage: python3 run_synoptic_simple_v2.py START_DATE END_DATE")
+        print("Usage: python3 run_synoptic_final_with_dates.py START_DATE END_DATE")
         sys.exit(1)
 
     try:
