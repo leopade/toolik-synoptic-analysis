@@ -593,9 +593,6 @@ Possible plots include:
 - comparisons among the four receiver channels
 - comparisons among 2.500, 3.330, and 4.996 MHz
 - radio peak-power plots with the daily 01–16 UT Kp sum shown underneath
-
-The exact plotting style can be changed depending on which feature of the data is being investigated.
-
 ---
 
 # Complete Analysis Workflow
