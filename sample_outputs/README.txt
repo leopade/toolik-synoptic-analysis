@@ -1,1 +1,1 @@
-Example processed output files ready to be plotted.
+Example processed output files by run_synoptic_final_with_dates.py
