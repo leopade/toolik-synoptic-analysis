@@ -101,7 +101,7 @@ The Python programs call an already-compiled Fortran executable:
 ```text
 a.out
 ```
-
+The corresponding Fortran source code is included as sono_toolik_synoptic_4ch_leo_extra_does_300.f.
 The Python programs do not compile the Fortran code.
 
 Before running `a.out`, Python creates a small text file called:
