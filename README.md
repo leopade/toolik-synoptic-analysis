@@ -508,11 +508,13 @@ This gives one daily geomagnetic-activity value that can be compared with the 01
 
 ## Input file
 
-The program expects:
+The program currently expects:
 
 ```text
-Kp_ap_YYYYMMDD_YYYYMMDD.dat
+Kp_ap_20200829_20201023.dat
 ```
+For a different date range the input file name must be changed accordingly.
+
 The Kp input data used for this project come from the **GFZ Helmholtz Centre for Geosciences Kp index service**:
 
 - Kp website: https://kp.gfz.de/en/
